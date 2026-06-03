@@ -1,2 +1,4 @@
 # Beta-SistemaLogiix
-Sistema de Logística y Distribución "Logiix"Una aplicación de consola en C++ que gestiona los envíos, las rutas, los usuarios y el inventario de una empresa de logística.
+
+Análisis, diseño e implementación del **Sistema de Logística y Distribución "Logiix"**, una aplicación de consola robusta desarrollada en C++ para la gestión eficiente de envíos, rutas óptimas, usuarios e inventario.
+
