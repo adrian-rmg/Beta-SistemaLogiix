@@ -6,7 +6,8 @@ Análisis, diseño e implementación del **Sistema de Logística y Distribución
 ## Integrantes del Proyecto
 * Adrián Márquez - [@adrian-rmg](https://github.com/adrian-rmg)
 * Greicel Salas - [@salasgreicel](https://github.com/salasgreicel)
----* Fernando Cedeño - [@cedenofernando](https://github.com/cedenofernando)
+* * Fernando Cedeño - [@cedenofernando](https://github.com/cedenofernando)
+
 
 
 ## Lenguaje y Herramientas
