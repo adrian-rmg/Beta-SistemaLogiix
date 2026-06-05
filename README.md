@@ -7,9 +7,7 @@ Análisis, diseño e implementación del **Sistema de Logística y Distribución
 * Adrián Márquez - [@adrian-rmg](https://github.com/adrian-rmg)
 * Greicel Salas - [@salasgreicel](https://github.com/salasgreicel)
 * Fernando Cedeño - [@cedenofernando](https://github.com/cedenofernando)
-
-
-
+* Jesus Romero - [@luluucreativo](https://github.com/luluucreativo)
 ## Lenguaje y Herramientas
 * Lenguaje Base: C++
 * Entorno de Desarrollo (IDE's): CLion / VS Code
