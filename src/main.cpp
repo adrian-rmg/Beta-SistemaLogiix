@@ -1,6 +1,7 @@
 #include <iostream>
 #include "ColaPedidos.h"
 #include "HistorialPaquete.h"
+#include "ListaProductos.h" // Integración del Sprint 3
 
 using namespace std;
 
@@ -9,9 +10,9 @@ int main() {
     cout << "        Bienvenido al Sistema de Logistica Logiix" << endl;
     cout << "==========================================================" << endl;
 
-    // ==========================================
+    // ====================================================
     // PRUEBA DE LA COLA (Módulo de Pedidos - FIFO)
-    // ==========================================
+    // ====================================================
     cout << "\n>>> [FASE 1] Registro y Control de Pedidos Entrantes <<<" << endl;
     ColaPedidos sistemaPedidos;
 
@@ -27,15 +28,15 @@ int main() {
     if (proximo != nullptr) {
         cout << "Atendiendo ID: " << proximo->idPedido << " con destino a " << proximo->destino << endl;
     }
-    sistemaPedidos.dequeue(); // Sale de la cola
+    sistemaPedidos.dequeue();
 
     cout << "\nEstado de la cola tras procesar el primer elemento:" << endl;
     sistemaPedidos.mostrarCola();
 
 
-    // ==========================================
+    // ====================================================
     // PRUEBA DE LA PILA (Módulo de Envíos - LIFO)
-    // ==========================================
+    // ====================================================
     cout << "\n>>> [FASE 2] Rastreo de Historial de Estados (Paquete ID: 101) <<<" << endl;
     HistorialPaquete rastreoPaquete;
 
@@ -48,13 +49,46 @@ int main() {
     rastreoPaquete.mostrarHistorial();
 
     cout << "\n[Accion Especial] Error en ruta detectado: Se requiere deshacer ultimo estado." << endl;
-    rastreoPaquete.pop(); // Revierte "En Ruta"
+    rastreoPaquete.pop();
 
     cout << "\nNuevo Estado Actual: " << rastreoPaquete.obtenerEstadoActual() << "\n" << endl;
     rastreoPaquete.mostrarHistorial();
 
+
+    // ====================================================
+    // PRUEBA DE LA LISTA ENLAZADA (Sprint 3 - Inventario / Carrito)
+    // ====================================================
+    cout << "\n>>> [FASE 3] Desglose de Productos del Paquete (Lista Doble) <<<" << endl;
+    ListaProductos carritoPaquete;
+
+    cout << "Insertando productos al paquete..." << endl;
+    carritoPaquete.insertarFinal(5001, "Laptop ASUS ZenBook", 1250.00);
+    carritoPaquete.insertarFinal(5002, "Mouse Inalambrico Logitech", 45.50);
+    carritoPaquete.insertarFinal(5003, "Teclado Mecanico RGB", 89.99);
+
+    // Operación: Recorrido (Hacia adelante e Inverso)
+    carritoPaquete.mostrarListaHaciaAdelante();
+    cout << endl;
+    carritoPaquete.mostrarListaHaciaAtras();
+
+    // Operación: Búsqueda
+    cout << "\nBuscando el producto con ID 5002..." << endl;
+    Producto* encontrado = carritoPaquete.buscarPorID(5002);
+    if (encontrado != nullptr) {
+        cout << "[Encontrado] -> " << encontrado->nombre << " | Precio: $" << encontrado->precio << endl;
+    } else {
+        cout << "[Error] El producto no existe.\n";
+    }
+
+    // Operación: Eliminación
+    cout << "\nEliminando el producto ID 5002 (Mouse) del paquete..." << endl;
+    carritoPaquete.eliminarPorID(5002);
+
+    cout << "\nEstado final del desglose de productos del paquete:" << endl;
+    carritoPaquete.mostrarListaHaciaAdelante();
+
     cout << "==========================================================" << endl;
-    cout << "    Sprint 1 finalizado: Pilas y Colas operativas (OK)" << endl;
+    cout << "   Sprint 3 finalizado: Listas Doblemente Enlazadas (OK)" << endl;
     cout << "==========================================================" << endl;
 
     return 0;
