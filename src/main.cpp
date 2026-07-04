@@ -1,7 +1,8 @@
 #include <iostream>
 #include "ColaPedidos.h"
 #include "HistorialPaquete.h"
-#include "ListaProductos.h" // Integración del Sprint 3
+#include "ListaProductos.h"
+#include "CatalogoProductos.h"
 
 using namespace std;
 
@@ -91,5 +92,45 @@ int main() {
     cout << "   Sprint 3 finalizado: Listas Doblemente Enlazadas (OK)" << endl;
     cout << "==========================================================" << endl;
 
+    // ====================================================
+    // PRUEBA DEL ÁRBOL AVL (Sprint 4 - Catálogo General O(log n))
+    // ====================================================
+    cout << "\n>>> [FASE 4] Catálogo General de Inventario Optimizado (Árbol AVL) <<<" << endl;
+    CatalogoProductos inventarioGeneral;
+
+    cout << "Poblando el catálogo maestro con operaciones eficientes en O(log n)..." << endl;
+    // Insertamos en un orden que forzaría desbalances en un árbol normal para validar las rotaciones
+    inventarioGeneral.insertarProducto(300, "Servidor Rack Dell", 2500.00);
+    inventarioGeneral.insertarProducto(200, "Switch Cisco 24 Puertos", 450.00);
+    inventarioGeneral.insertarProducto(400, "Access Point Wi-Fi 6", 180.00);
+    inventarioGeneral.insertarProducto(100, "Cable Utp Categoria 6 (305m)", 90.00); // Provoca rotación leve
+    inventarioGeneral.insertarProducto(250, "Gabinete de Pared 9RU", 115.00);
+
+    cout << "\nCatálogo General Autodepurado y Ordenado Automáticamente (In-order):" << endl;
+    inventarioGeneral.mostrarCatalogo();
+
+    // Operación Especial: Edge Case - Intento de Duplicado (Actualización)
+    cout << "\n[Acción Especial] Detectado reajuste de precio para el ID 250 (Gabinete)..." << endl;
+    inventarioGeneral.insertarProducto(250, "Gabinete de Pared 9RU (Premium)", 135.00);
+
+    // Operación: Búsqueda de alta velocidad
+    cout << "\nVerificando datos actualizados mediante búsqueda indexada:" << endl;
+    NodoProducto* prodAVL = inventarioGeneral.buscar(250);
+    if (prodAVL != nullptr) {
+        cout << "[Consulta AVL Exitosa] -> " << prodAVL->nombre << " | Nuevo Precio: $" << prodAVL->precio << endl;
+    }
+
+    // Operación: Baja de Producto con Balanceo Estricto
+    cout << "\nDando de baja del catálogo maestro el ID 300 por obsolescencia..." << endl;
+    if (inventarioGeneral.darDeBaja(300)) {
+        cout << "Producto removido. Estructura balanceada reajustada instantáneamente." << endl;
+    }
+
+    cout << "\nEstado final del Catálogo General de Logiix:" << endl;
+    inventarioGeneral.mostrarCatalogo();
+
+    cout << "==========================================================" << endl;
+    cout << "    Sprint 4 finalizado: Árboles AVL Estructurados (OK)" << endl;
+    cout << "==========================================================" << endl;
     return 0;
 }
