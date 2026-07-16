@@ -8,4 +8,11 @@ include_directories(include)
 
 add_executable(Logiix
         src/main.cpp
+        include/ColaPedidos.h
+        include/HistorialPaquete.h
+        include/ListaProductos.h
+        include/CatalogoProductos.h
+        include/InventarioProductos.h
+        include/RutaDistribucion.h
+        include/TablaUsuarios.h
 )
