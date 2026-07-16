@@ -1,8 +1,11 @@
 #include <iostream>
-#include "ColaPedidos.h"
-#include "HistorialPaquete.h"
-#include "ListaProductos.h"
-#include "CatalogoProductos.h"
+#include "../include/ColaPedidos.h"
+#include "../include/HistorialPaquete.h"
+#include "../include/ListaProductos.h"
+#include "../include/CatalogoProductos.h"
+#include "../include/InventarioProductos.h"
+#include "../include/RutaDistribucion.h"
+#include "../include/TablaUsuarios.h"
 
 using namespace std;
 
@@ -132,5 +135,61 @@ int main() {
     cout << "==========================================================" << endl;
     cout << "    Sprint 4 finalizado: Árboles AVL Estructurados (OK)" << endl;
     cout << "==========================================================" << endl;
+
+    cout << "==========================================================" << endl;
+    cout << "   Sprint 5 finalizado: Árboles Multi-camino 2-3 (OK)" << endl;
+    cout << "==========================================================" << endl;
+
+
+    // ====================================================
+    // PRUEBA DEL GRAFO (Sprint 6 - Rutas de Distribución)
+    // ====================================================
+    cout << "\n>>> [FASE 6] Red de Distribucion Nacional (Grafos) <<<" << endl;
+    RutaDistribucion redLogiix;
+
+    cout << "Trazando enlaces de carreteras y hubs logisticos..." << endl;
+    redLogiix.agregarRuta("Maturin", "Lecheria", 160);
+    redLogiix.agregarRuta("Maturin", "Caracas", 500);
+    redLogiix.agregarRuta("Lecheria", "Caracas", 340);
+    redLogiix.agregarRuta("Caracas", "Valencia", 170);
+    redLogiix.agregarRuta("Valencia", "Barquisimeto", 180);
+
+    cout << "\nVisualizacion de la Red Logistica Registrada:" << endl;
+    redLogiix.mostrarRed();
+
+    cout << "\nSimulando ruteo de envios de larga distancia:" << endl;
+    redLogiix.mostrarRecorridoBFS("Maturin");
+
+    cout << "\n==========================================================" << endl;
+
+
+    // ====================================================
+    // PRUEBA DE LA TABLA HASH (Sprint 6 - Indexacion de Personal O(1))
+    // ====================================================
+    cout << "\n>>> [FASE 7] Directorio de Seguridad del Personal (Tabla Hash) <<<" << endl;
+    TablaUsuarios personalLogiix;
+
+    cout << "Indexando credenciales de usuarios..." << endl;
+    // Agregamos varios usuarios (algunos con IDs que colisionaran a proposito en modulo 11)
+    personalLogiix.insertar("V-12345678", "Adrian Rodriguez", "Administrador Principal");
+    personalLogiix.insertar("V-87654321", "Carlos Mendoza", "Chofer de Distribucion");
+    personalLogiix.insertar("V-11223344", "Maria Perez", "Supervisora de Despacho");
+    personalLogiix.insertar("V-99887766", "Jose Gomez", "Operador de Almacen");
+
+    cout << "\nEstado de distribucion fisica de los datos indexados:" << endl;
+    personalLogiix.mostrarTabla();
+
+    cout << "\nBuscando credenciales en tiempo record (O(1)) para el ID: V-87654321..." << endl;
+    Usuario* usr = personalLogiix.buscar("V-87654321");
+    if (usr != nullptr) {
+        cout << "[Acceso Permitido] -> Nombre: " << usr->nombre << " | Cargo: " << usr->rol << endl;
+    } else {
+        cout << "[Acceso Denegado] -> El usuario no se encuentra en el sistema de seguridad.\n";
+    }
+
+    cout << "==========================================================" << endl;
+    cout << "    Sprint 6 finalizado: Grafos y Tablas Hash (OK)" << endl;
+    cout << "==========================================================" << endl;
+
     return 0;
 }
