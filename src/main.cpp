@@ -1,11 +1,11 @@
 #include <iostream>
-#include "../include/ColaPedidos.h"
-#include "../include/HistorialPaquete.h"
-#include "../include/ListaProductos.h"
-#include "../include/CatalogoProductos.h"
-#include "../include/InventarioProductos.h"
-#include "../include/RutaDistribucion.h"
-#include "../include/TablaUsuarios.h"
+#include "ColaPedidos.h"
+#include "HistorialPaquete.h"
+#include "ListaProductos.h"
+#include "CatalogoProductos.h"
+#include "InventarioProductos.h"
+#include "RutaDistribucion.h"
+#include "TablaUsuarios.h"
 
 using namespace std;
 
