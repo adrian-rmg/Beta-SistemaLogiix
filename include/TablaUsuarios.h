@@ -6,12 +6,13 @@
 #include <string>
 #include <vector>
 #include <list>
+#include "Enums.h"
 
 // Datos del usuario a almacenar en la tabla Hash
 struct Usuario {
     std::string cedula; // Clave única (Key)
     std::string nombre;
-    std::string rol;    // Administrador, Repartidor, etc.
+    RolUsuario rol;    // Administrador, Repartidor, etc.
 };
 
 class TablaUsuarios {
@@ -46,7 +47,7 @@ public:
     }
 
     // Inserta un usuario en la tabla
-    void insertar(const std::string& cedula, const std::string& nombre, const std::string& rol) {
+    void insertar(const std::string& cedula, const std::string& nombre, const RolUsuario& rol) {
         int indice = funcionHash(cedula);
         
         // Evitamos duplicados de la misma cédula
@@ -75,6 +76,20 @@ public:
         return nullptr; // No encontrado
     }
 
+    // Elimina un usuario por su cédula (retorna true si lo encontró y eliminó)
+    bool eliminar(const std::string& cedula) {
+        int indice = funcionHash(cedula);
+        auto& lista = tabla[indice];
+
+        for (auto it = lista.begin(); it != lista.end(); ++it) {
+            if (it->cedula == cedula) {
+                lista.erase(it);
+                return true; // Eliminado con éxito
+            }
+        }
+        return false; // No existía
+    }
+
     // Muestra la distribución interna de la tabla (Para fines de auditoría del Sprint)
     void mostrarTabla() const {
         std::cout << "Estructura de Almacenamiento de Tabla Hash (Encadenamiento):\n";
@@ -84,7 +99,7 @@ public:
                 std::cout << "[Vacio]";
             } else {
                 for (const auto& usr : tabla[i]) {
-                    std::cout << "-> [" << usr.cedula << ": " << usr.nombre << " (" << usr.rol << ")] ";
+                    std::cout << "-> [" << usr.cedula << ": " << usr.nombre << " (" << rolATexto(usr.rol) << ")] ";
                 }
             }
             std::cout << "\n";
