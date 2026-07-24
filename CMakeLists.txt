@@ -15,4 +15,6 @@ add_executable(Logiix
         include/InventarioProductos.h
         include/RutaDistribucion.h
         include/TablaUsuarios.h
+        include/Enums.h
+        include/Menus.h
 )
