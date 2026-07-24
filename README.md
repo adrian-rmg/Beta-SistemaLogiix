@@ -17,20 +17,20 @@ Análisis, diseño e implementación del **Sistema de Logística y Distribución
 
 ---
 
-## Arquitectura del Sistema y Estructura de Datos
-El núcleo de Logiix está diseñado bajo el principio de eficiencia algorítmica. A continuación se detallan los módulos del sistema y las estructuras de datos avanzadas que resuelven cada problema:
+### Arquitectura del Sistema y Estructura de Datos
 
-### 1. Gestión de Usuarios y Autenticación
-* **Tabla de Hash (Hashing):** Implementada para garantizar un inicio de sesión y autenticación de usuarios en tiempo constante $O(1)$.
-* **Árbol AVL / Árbol B:** Utilizado para el almacenamiento indexado de usuarios por ID, permitiendo búsquedas rápidas y la generación de reportes administrativos ordenados alfabéticamente en tiempo $O(\log n)$.
+El núcleo de Logiix está diseñado bajo el principio de eficiencia algorítmica y desacoplamiento modular:
 
-### 2. Procesamiento de Pedidos y Envíos
-* **Colas (Queues - FIFO):** Control de la "Cola de Espera" para pedidos entrantes, asegurando que el primer pedido en registrarse sea el primero en ser procesado.
-* **Pilas (Stacks - LIFO):** Gestión del historial de estados de un paquete (ej: *En almacén* $\rightarrow$ *En camino* $\rightarrow$ *Entregado*), ideal para operaciones de rastreo y "deshacer" acciones.
+1. **Gestión de Usuarios y Autenticación**
+   * **Tabla Hash (`std::unordered_map`):** Garantiza la búsqueda, validación y registro de usuarios (Administrador, Repartidor, Cliente) en tiempo constante $O(1)$.
 
-### 3. Catálogo de Productos e Inventario
-* **Árbol Binario de Búsqueda (ABB) / Árbol 2-3:** Estructura principal para el catálogo de productos disponibles, optimizando las operaciones de inserción, baja y modificación (CRUD).
-* **Listas Enlazadas (Simples/Dobles):** Manejo del "carrito de compras" temporal del usuario y desglose de productos específicos contenidos dentro de un mismo paquete.
+2. **Procesamiento de Pedidos y Trazabilidad**
+   * **Colas (FIFO):** Control del flujo de pedidos en espera, garantizando atención por orden de llegada.
+   * **Pilas (LIFO) + Mapeo Hash:** Gestión del historial de estados de envío por paquete (ej. *Registrado -> En Tránsito -> Entregado*), permitiendo operaciones de rastreo y reversión (*Pop*) asociadas a un ID de pedido.
 
-### 4. Rutas de Entrega y Ciudades
-* **Grafos:** Representación matemática de la red de distribución. Las ciudades o almacenes actúan como **nodos**, mientras que las carreteras y rutas de envío son las **aristas** (cuyos pesos representan la distancia en km o el tiempo estimado de viaje).
+3. **Catálogo de Productos e Inventario (Doble Estructura)**
+   * **Árbol AVL:** Almacenamiento balanceado para el Catálogo Comercial, garantizando búsquedas rápidas $O(\log n)$ por ID de producto.
+   * **Árbol 2-3:** Estructura multi-camino autosustentada para el reporte de Inventario Físico en Bodega y control masivo de stock mediante recorridos Inorden.
+
+4. **Red de Distribución y Rutas de Entrega**
+   * **Grafos (Lista de Adyacencia + Dijkstra):** Representación dinámica de la red logística donde las ciudades representan nodos y las carreteras aristas ponderadas (distancia en KM). Implementa el algoritmo de Dijkstra con cola de prioridad (*min-heap*) para el cálculo de rutas óptimas.
