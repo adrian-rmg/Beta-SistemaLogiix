@@ -3,15 +3,16 @@
 
 #include <iostream>
 #include <string>
+#include "Enums.h"
 
 /**
  * Nodo para la estructura lineal de la Pila.
  */
 struct NodoPila {
-    std::string estado;
+    EstadoPaquete estado;
     NodoPila* siguiente;
 
-    NodoPila(const std::string& est) : estado(est), siguiente(nullptr) {}
+    NodoPila(EstadoPaquete est) : estado(est), siguiente(nullptr) {}
 };
 
 /**
@@ -40,7 +41,7 @@ public:
      * No tiene límite de tamaño teórico (memoria dinámica), pero la inserción
      * es ciega; no valida si el estado lógico tiene sentido respecto al anterior.
      */
-    void push(const std::string& nuevoEstado) {
+    void push(EstadoPaquete nuevoEstado) {
         NodoPila* nuevoNodo = new NodoPila(nuevoEstado);
         nuevoNodo->siguiente = tope;
         tope = nuevoNodo;
@@ -65,9 +66,9 @@ public:
      * Retorna el estado actual del paquete (Top).
      * El string del estado superior o un aviso de vacío.
      */
-    std::string obtenerEstadoActual() const {
+    EstadoPaquete obtenerEstadoActual() const {
         if (estaVacia()) {
-            return "Sin estados registrados";
+            return EstadoPaquete::Registrado;
         }
         return tope->estado;
     }
@@ -90,7 +91,7 @@ public:
         NodoPila* actual = tope;
         std::cout << "Historial (Más reciente primero):\n";
         while (actual != nullptr) {
-            std::cout << " -> " << actual->estado << "\n";
+            std::cout << " -> " << estadoATexto(actual->estado) << "\n";
             actual = actual->siguiente;
         }
     }
