@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <queue>
 #include <unordered_set>
+#include <climits>
+#include <map>
 
 // Estructura para representar una conexión (arista dirigida con peso)
 struct Conexion {
@@ -49,44 +51,86 @@ public:
         listaAdyacencia[origen].push_back({destino, distancia});
     }
 
-    /*
-       ========================================================================
-       RECORRIDO ELEGIDO: BFS (Búsqueda en Anchura / Breadth-First Search)
-
-       ¿Por qué BFS?
-       Para un sistema logístico, BFS es ideal porque explora la red nivel por nivel.
-       En un grafo no ponderado o para encontrar el camino con menor "número de escalas"
-       (saltos de almacén), BFS garantiza encontrar la ruta más corta en saltos.
-       ========================================================================
-    */
-    void mostrarRecorridoBFS(const std::string& inicio) {
-        if (listaAdyacencia.find(inicio) == listaAdyacencia.end()) {
-            std::cout << "[Grafo] La ciudad de inicio no existe en la red.\n";
+    // Algoritmo de Dijkstra para calcular distancias mínimas en KM desde un origen
+    void calcularRutaDijkstra(const std::string& origen) {
+        if (listaAdyacencia.find(origen) == listaAdyacencia.end()) {
+            std::cout << "\n[X] Error: La ciudad origen '" << origen << "' no existe en la red de distribución.\n";
             return;
         }
 
-        std::unordered_set<std::string> visitados;
-        std::queue<std::string> cola;
+        // Distancias mínimas
+        std::map<std::string, int> distancias;
+        for (const auto& par : listaAdyacencia) {
+            distancias[par.first] = INT_MAX;
+        }
+        distancias[origen] = 0;
 
-        cola.push(inicio);
-        visitados.insert(inicio);
+        // Predecesor para reconstruir la ruta
+        std::unordered_map<std::string, std::string> predecesor;
+        predecesor[origen] = "";  // indica inicio
 
-        std::cout << "Recorrido BFS de Distribucion desde '" << inicio << "':\n  ";
-        while (!cola.empty()) {
-            std::string actual = cola.front();
-            cola.pop();
+        // Min-heap
+        std::priority_queue<
+            std::pair<int, std::string>,
+            std::vector<std::pair<int, std::string>>,
+            std::greater<std::pair<int, std::string>>
+        > colaPrioridad;
+        colaPrioridad.push({0, origen});
 
-            std::cout << " -> " << actual;
+        while (!colaPrioridad.empty()) {
+            int distActual = colaPrioridad.top().first;
+            std::string u = colaPrioridad.top().second;
+            colaPrioridad.pop();
 
-            // Explorar todos los vecinos adyacentes de la ciudad actual
-            for (const auto& conexion : listaAdyacencia[actual]) {
-                if (visitados.find(conexion.destino) == visitados.end()) {
-                    visitados.insert(conexion.destino);
-                    cola.push(conexion.destino);
+            if (distActual > distancias[u]) continue;
+
+            for (const auto& conexion : listaAdyacencia[u]) {
+                std::string v = conexion.destino;
+                int peso = conexion.distanciaKM;
+
+                if (distancias[u] + peso < distancias[v]) {
+                    distancias[v] = distancias[u] + peso;
+                    predecesor[v] = u;          // guardamos de dónde venimos
+                    colaPrioridad.push({distancias[v], v});
                 }
             }
         }
-        std::cout << " -> [Fin del Recorrido]\n";
+
+        // ---------- IMPRESIÓN CON RUTAS ----------
+        std::cout << "\n=======================================================\n";
+        std::cout << " COBERTURA Y DISTANCIAS ÓPTIMAS DESDE: " << origen << "\n";
+        std::cout << "=======================================================\n";
+
+        for (const auto& par : distancias) {
+            const std::string& destino = par.first;
+            int dist = par.second;
+
+            if (dist == INT_MAX) {
+                std::cout << " -> Destino: " << destino << " | Estado: INALCANZABLE\n";
+                continue;
+            }
+
+            // Reconstruir camino
+            std::vector<std::string> camino;
+            std::string actual = destino;
+            while (actual != "" && actual != origen) {
+                camino.push_back(actual);
+                actual = predecesor[actual];
+            }
+            camino.push_back(origen);    // agregamos el origen
+            std::reverse(camino.begin(), camino.end());
+
+            // Mostrar distancia y ruta
+            std::cout << " -> Destino: " << destino
+                      << " | Distancia Mínima: " << dist << " KM"
+                      << " | Ruta: ";
+            for (size_t i = 0; i < camino.size(); ++i) {
+                std::cout << camino[i];
+                if (i != camino.size() - 1) std::cout << " -> ";
+            }
+            std::cout << "\n";
+        }
+        std::cout << "=======================================================\n";
     }
 
     // Muestra todas las conexiones de la red
@@ -102,17 +146,10 @@ public:
         }
     }
 
-    /*
-       ========================================================================
-       LIMITACIONES DE ESTA IMPLEMENTACIÓN:
-       1. No maneja rutas bidireccionales por defecto: El método `agregarRuta` es
-          unidireccional (dirigido). Si se desea que sea de ida y vuelta, se debe
-          llamar dos veces o modificar el código para agregar la arista en ambos sentidos.
-       2. No implementa algoritmos de camino mínimo ponderado (como Dijkstra): Aunque
-          guardamos el peso (distanciaKM), el recorrido BFS solo optimiza el número
-          de saltos, ignorando las distancias reales en kilómetros.
-       ========================================================================
-    */
+    // Verifica si una ciudad existe actualmente en la red de distribución
+    bool existeCiudad(const std::string& ciudad) const {
+        return listaAdyacencia.find(ciudad) != listaAdyacencia.end();
+    }
 };
 
 #endif // RUTADISTRIBUCION_H
