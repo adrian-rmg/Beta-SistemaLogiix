@@ -3,16 +3,22 @@
 
 #include <iostream>
 #include <string>
+#include "HistorialPaquete.h"
 
 /**
  * Estructura que representa un pedido individual en el sistema.
  */
 struct Pedido {
     int idPedido;
+    std::string cedulaCliente;
     std::string destino;
+    HistorialPaquete historial;
     Pedido* siguiente;
 
-    Pedido(int id, const std::string& dest) : idPedido(id), destino(dest), siguiente(nullptr) {}
+    Pedido(int id, const std::string& cedula, const std::string& dest)
+        : idPedido(id), cedulaCliente(cedula), destino(dest), siguiente(nullptr) {
+        historial.push(EstadoPaquete::Registrado);
+    }
 };
 
 /**
@@ -42,8 +48,8 @@ public:
      * destino Dirección o ciudad destino.
      * No controla si existen IDs de pedidos duplicados dentro de la cola.
      */
-    void enqueue(int id, const std::string& destino) {
-        Pedido* nuevoPedido = new Pedido(id, destino);
+    void enqueue(int id, const std::string& cedula, const std::string& destino) {
+        Pedido* nuevoPedido = new Pedido(id, cedula, destino);
         if (estaVacia()) {
             frente = nuevoPedido;
             final = nuevoPedido;
@@ -79,6 +85,18 @@ public:
      */
     Pedido* obtenerFrente() const {
         return frente;
+    }
+
+    // Método para bucar un pedido por ID y obtener su historial
+    Pedido* buscarPedido(int id) {
+        Pedido* actual = frente;
+        while (actual != nullptr) {
+            if (actual->idPedido == id) {
+                return actual; // Retorna el pedido encontrado
+            }
+            actual = actual->siguiente;
+        }
+        return nullptr; // No se encontró
     }
 
     /**
