@@ -43,3 +43,41 @@ Este modelo de trabajo colaborativo (similar al de muchos equipos ágiles de sof
 ### Sprint #7: Integración y Entrega Final
 * Fecha Tentativa de Entrega: 22/07
 * Asignación: Todos
+
+---
+
+## 3. CHECKLIST DE CUMPLIMIENTO Y RESULTADOS FINALES
+
+| Componente / Estructura | Planificado Inicialmente | Estado Final en Código | Observaciones y Desviaciones |
+| :--- | :--- | :--- | :--- |
+| **Pila (Stack)** | Módulo de envíos (Desde cero) | **Completado** | Integrada en `HistorialPaquete` mediante `std::stack` dentro de un mapa Hash. |
+| **Cola (Queue)** | Módulo de pedidos (Desde cero) | **Completado** | Implementada en `ColaPedidos` (`std::queue`) para el flujo FIFO. |
+| **Lista Enlazada** | Módulo de inventario | **Sustituido** | Se optó por estructuras arborescentes de mayor rendimiento ($O(\log n)$). |
+| **Árbol Binario (ABB)** | Módulo de inventario | **Sustituido** | Reemplazado por **Árbol AVL** para garantizar auto-balanceo en el catálogo comercial. |
+| **Árbol AVL** | Módulo de usuarios | **Reasignado** | Se migró al **Catálogo de Productos** (`CatalogoProductos`) para optimizar búsquedas por ID. |
+| **Árbol 2-3** | Módulo de inventario | **Completado** | Implementado desde cero en `InventarioProductos.h` para balanceo multi-camino. |
+| **Árbol B** | Módulo de usuarios | **Simplificado** | La gestión de usuarios se consolidó en la Tabla Hash para acceso directo $O(1)$. |
+| **Grafo** | Módulo de rutas (Dijkstra) | **Completado** | Implementado en `RutaDistribucion.h` con lista de adyacencia y **Dijkstra** (Min-Heap). |
+| **Hashing** | Módulo de usuarios | **Completado** | Implementado en `TablaUsuarios.h` (`std::unordered_map`) para autenticación $O(1)$. |
+
+---
+
+## 4. ANEXO DE DECISIONES Y AJUSTES DE ARQUITECTURA
+
+Durante la fase de integración (Sprint #7), se tomaron decisiones de diseño de software para mejorar la mantenibilidad y estabilidad de la aplicación:
+
+1. **Desacoplamiento UI / Lógica (Refactorización `Menus.h`):**
+   * **Plan Original:** Lógica de presentación dispersa en `main.cpp` o en cada módulo.
+   * **Ajuste Realizado:** Se centralizó la interfaz CLI en `Menus.h` y se mantuvo `main.cpp` como un orquestador limpio.
+
+2. **Alineación de Hashing sobre Árbol B/AVL en Usuarios:**
+   * **Plan Original:** Usar Árbol B y AVL para autenticar usuarios.
+   * **Ajuste Realizado:** Se priorizó el uso de **Tabla Hash** (`unordered_map`) dado que el caso de uso principal (login) requiere una complejidad de $O(1)$ en lugar de $O(\log n)$.
+
+3. **Evolución del Catálogo Físico (AVL + Árbol 2-3):**
+   * **Plan Original:** Usar ABB básico y Listas Enlazadas para inventario.
+   * **Ajuste Realizado:** Se implementaron **Árbol AVL** y **Árbol 2-3 desde cero**, garantizando balanceo estricto y eliminando la degradación de rendimiento de los ABB simples.
+
+4. **Trazabilidad LIFO Desacoplada:**
+   * **Plan Original:** Pila dependiente de la Cola de Pedidos.
+   * **Ajuste Realizado:** Se independizó el historial en un mapa de Pilas (`std::unordered_map<int, HistorialPaquete>`), permitiendo consultar el rastreo de envíos procesados (`dequeue`) sin perder su historial.
