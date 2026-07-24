@@ -46,11 +46,38 @@ private:
     Nodo23* insertarRecursivo(Nodo23* nodo, const ProductoInventario& prod, ProductoInventario& clavePromovida);
     void dividirNodo(Nodo23* nodo, const ProductoInventario& prodPush, Nodo23* hijoPush, ProductoInventario& clavePromovida, Nodo23*& nuevoNodo);
 
+    ProductoInventario* buscarRecursivo(Nodo23* nodo, int id) {
+        if (nodo == nullptr) return nullptr;
+
+        // Buscar entre las claves del nodo actual
+        for (size_t i = 0; i < nodo->claves.size(); ++i) {
+            if (nodo->claves[i].idProducto == id) {
+                return &(nodo->claves[i]); // Puntero directo al producto en memoria
+            }
+        }
+
+        // Si es hoja y no estuvo en las claves, no existe
+        if (nodo->esHoja()) return nullptr;
+
+        // Navegar hacia el hijo correspondiente
+        if (id < nodo->claves[0].idProducto) {
+            return buscarRecursivo(nodo->hijos[0], id);
+        } else if (nodo->claves.size() == 1 || id < nodo->claves[1].idProducto) {
+            return buscarRecursivo(nodo->hijos[1], id);
+        } else {
+            return buscarRecursivo(nodo->hijos[2], id);
+        }
+    }
+
 public:
     InventarioProductos() : raiz(nullptr) {}
     void insertar(const ProductoInventario& prod);
     void mostrarInorden(Nodo23* nodo) const;
     void mostrar() const { mostrarInorden(raiz); }
+
+    ProductoInventario* buscar(int id) {
+        return buscarRecursivo(raiz, id);
+    }
 };
 
 // ============================================================================
@@ -215,25 +242,40 @@ void InventarioProductos::mostrarInorden(Nodo23* nodo) const {
 
 /*
    ========================================================================
-   LIMITACIONES DEL ALGORITMO (LO QUE EL ALGORITMO NO MANEJA):
+   LIMITACIONES DEL ALGORITMO (PROPIEDADES TÉCNICAS Y ÁREAS DE MEJORA):
 
-   1. NO IMPLEMENTA ELIMINACIÓN (CRUD incompleto):
-      La eliminación en un árbol 2-3 es considerablemente compleja. Requiere
-      manejar casos de subbúsqueda de claves, fusión de nodos (merging), y el
-      "préstamo" de claves (redistribución) desde nodos hermanos para evitar que
-      un nodo quede vacío (underflow). Al no estar implementado, si se remueve
-      un producto, el árbol actual no ajustará su balanceo.
+   1. AUSENCIA DE OPERACIÓN DE ELIMINACIÓN (DELETE):
+      El archivo no implementa la eliminación de nodos. La remoción en un Árbol 2-3
+      es una de las operaciones más complejas en estructuras balanceadas, ya que
+      exige gestionar casos de underflow mediante fusión de nodos (merging) o 
+      préstamo de claves (redistribución) desde nodos hermanos. Si un producto se
+      da de baja en el catálogo, debe manejarse de forma lógica o reflejarse solo
+      en la capa de presentación/AVL, pero no se desasigna de este árbol 2-3.
 
-   2. NO MANEJA CLAVES DUPLICADAS:
-      El comportamiento ante IDs repetidos no está controlado. Intentar insertar
-      un producto con un ID idéntico a uno existente romperá las propiedades de
-      búsqueda binaria del nodo y duplicará registros de manera errónea.
+   2. AUSENCIA DE LIBERACIÓN DE MEMORIA DINÁMICA (DESTRUCTOR):
+      La clase `InventarioProductos` carece de un destructor explícito (`~InventarioProductos`)
+      que realice un recorrido postorden para liberar la memoria de los nodos creados 
+      con `new Nodo23()`. En ejecuciones prolongadas o sistemas persistentes, esto
+      generaría fugas de memoria (memory leaks).
 
-   3. REORDENAMIENTO SIMPLIFICADO DE HIJOS:
-      La distribución de punteros en la función `dividirNodo` asume un orden
-      secuencial simple. En casos extremos de inserciones desordenadas con
-      múltiples niveles de altura, el reacomodo estricto de punteros de hijos
-      podría requerir validaciones posicionales más detalladas de los índices.
+   3. COMPORTAMIENTO INDEFINIDO ANTE IDs DUPLICADOS:
+      La función `insertar` no valida si el `idProducto` ya existe antes de procesar
+      el recorrido. Insertar una clave duplicada provocará que la misma exista en
+      múltiples nodos o posiciones, corrompiendo el invariante de búsqueda del árbol.
+
+   4. ORDENAMIENTO DE HIJOS LIMITADO EN EL SPLIT (dividirNodo):
+      El reacomodo de los punteros en `tempHijos` durante la división de un nodo
+      interno utiliza un intercambio heurístico básico entre las posiciones 2 y 3.
+      Aunque funciona correctamente para la mayoría de secuencias de inserción,
+      no realiza un ordenamiento estricto por límites de rangos de claves para
+      los 4 hijos temporales, lo que podría desordenar punteros en escenarios
+      específicos de inserciones complejas en cascada.
+
+   5. COMPLEJIDAD EN MEMORIA POR VECTORES DINÁMICOS:
+      El uso de `std::vector` dentro de la estructura `Nodo23` para `claves` e `hijos`
+      simplifica la implementación, pero añade un pequeño overhead de memoria
+      frente al uso de arreglos estáticos de tamaño fijo (`claves[2]` e `hijos[3]`),
+      los cuales garantizan un layout de memoria contiguo y de tamaño constante.
    ========================================================================
 */
 #endif //INVENTARIOPRODUCTOS_H
