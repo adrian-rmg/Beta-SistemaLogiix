@@ -1,195 +1,80 @@
+/**
+ * ============================================================================
+ * PROYECTO LOGIIX - SISTEMA DE LOGÍSTICA Y DISTRIBUCIÓN
+ * Archivo: src/main.cpp
+ * Propósito: Punto de entrada principal e interfaz CLI integrada del sistema.
+ * Integrantes: Adrián Márquez, Greicel Salas, Fernando Cedeño, Jesús Romero, Andrés Mata.
+ * ============================================================================
+ */
+
 #include <iostream>
+#include "Menus.h"
+#include "TablaUsuarios.h"
 #include "ColaPedidos.h"
 #include "HistorialPaquete.h"
-#include "ListaProductos.h"
 #include "CatalogoProductos.h"
 #include "InventarioProductos.h"
 #include "RutaDistribucion.h"
-#include "TablaUsuarios.h"
 
 using namespace std;
 
+// Menú Principal
 int main() {
-    cout << "==========================================================" << endl;
-    cout << "        Bienvenido al Sistema de Logistica Logiix" << endl;
-    cout << "==========================================================" << endl;
+    // Instanciación de las estructuras principales
+    TablaUsuarios tablaUsuarios;
+    ColaPedidos colaPedidos;
+    std::unordered_map<int, HistorialPaquete> mapaHistoriales;
+    CatalogoProductos catalogo;
+    InventarioProductos inventario;
+    RutaDistribucion redRutas;
 
-    // ====================================================
-    // PRUEBA DE LA COLA (Módulo de Pedidos - FIFO)
-    // ====================================================
-    cout << "\n>>> [FASE 1] Registro y Control de Pedidos Entrantes <<<" << endl;
-    ColaPedidos sistemaPedidos;
+    int opcion = 0;
 
-    cout << "Registrando pedidos en el sistema..." << endl;
-    sistemaPedidos.enqueue(101, "Maturin, Monagas");
-    sistemaPedidos.enqueue(102, "Caracas, DC");
-    sistemaPedidos.enqueue(103, "Lecheria, Anzoategui");
+    do {
+        mostrarEncabezado();
+        cout << "SELECCIONE EL MÓDULO A GESTIONAR:\n\n";
+        cout << "1. Módulo de Usuarios y Autenticación (Tabla Hash)\n";
+        cout << "2. Módulo de Pedidos en Espera (Cola - FIFO)\n";
+        cout << "3. Módulo de Rastreo de Envíos (Pila - LIFO)\n";
+        cout << "4. Módulo de Catálogo e Inventario (Árboles AVL / 2-3)\n";
+        cout << "5. Módulo de Red de Distribución (Grafo)\n";
+        cout << "6. Salir del Sistema\n\n";
+        cout << "Ingrese su opción (1-6): ";
 
-    sistemaPedidos.mostrarCola();
+        if (!(cin >> opcion)) {
+            cout << "\n[!] Entrada inválida. Ingrese un número entre 1 y 6.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            pausar();
+            continue;
+        }
 
-    cout << "\nProcesando el primer pedido de la fila..." << endl;
-    Pedido* proximo = sistemaPedidos.obtenerFrente();
-    if (proximo != nullptr) {
-        cout << "Atendiendo ID: " << proximo->idPedido << " con destino a " << proximo->destino << endl;
-    }
-    sistemaPedidos.dequeue();
-
-    cout << "\nEstado de la cola tras procesar el primer elemento:" << endl;
-    sistemaPedidos.mostrarCola();
-
-
-    // ====================================================
-    // PRUEBA DE LA PILA (Módulo de Envíos - LIFO)
-    // ====================================================
-    cout << "\n>>> [FASE 2] Rastreo de Historial de Estados (Paquete ID: 101) <<<" << endl;
-    HistorialPaquete rastreoPaquete;
-
-    cout << "Cambiando estados del paquete logistico..." << endl;
-    rastreoPaquete.push("En Almacen Central (Maturin)");
-    rastreoPaquete.push("Empaquetado y Clasificado");
-    rastreoPaquete.push("En Ruta de Entrega Terrestre");
-
-    cout << "Estado Actual: " << rastreoPaquete.obtenerEstadoActual() << "\n" << endl;
-    rastreoPaquete.mostrarHistorial();
-
-    cout << "\n[Accion Especial] Error en ruta detectado: Se requiere deshacer ultimo estado." << endl;
-    rastreoPaquete.pop();
-
-    cout << "\nNuevo Estado Actual: " << rastreoPaquete.obtenerEstadoActual() << "\n" << endl;
-    rastreoPaquete.mostrarHistorial();
-
-
-    // ====================================================
-    // PRUEBA DE LA LISTA ENLAZADA (Sprint 3 - Inventario / Carrito)
-    // ====================================================
-    cout << "\n>>> [FASE 3] Desglose de Productos del Paquete (Lista Doble) <<<" << endl;
-    ListaProductos carritoPaquete;
-
-    cout << "Insertando productos al paquete..." << endl;
-    carritoPaquete.insertarFinal(5001, "Laptop ASUS ZenBook", 1250.00);
-    carritoPaquete.insertarFinal(5002, "Mouse Inalambrico Logitech", 45.50);
-    carritoPaquete.insertarFinal(5003, "Teclado Mecanico RGB", 89.99);
-
-    // Operación: Recorrido (Hacia adelante e Inverso)
-    carritoPaquete.mostrarListaHaciaAdelante();
-    cout << endl;
-    carritoPaquete.mostrarListaHaciaAtras();
-
-    // Operación: Búsqueda
-    cout << "\nBuscando el producto con ID 5002..." << endl;
-    Producto* encontrado = carritoPaquete.buscarPorID(5002);
-    if (encontrado != nullptr) {
-        cout << "[Encontrado] -> " << encontrado->nombre << " | Precio: $" << encontrado->precio << endl;
-    } else {
-        cout << "[Error] El producto no existe.\n";
-    }
-
-    // Operación: Eliminación
-    cout << "\nEliminando el producto ID 5002 (Mouse) del paquete..." << endl;
-    carritoPaquete.eliminarPorID(5002);
-
-    cout << "\nEstado final del desglose de productos del paquete:" << endl;
-    carritoPaquete.mostrarListaHaciaAdelante();
-
-    cout << "==========================================================" << endl;
-    cout << "   Sprint 3 finalizado: Listas Doblemente Enlazadas (OK)" << endl;
-    cout << "==========================================================" << endl;
-
-    // ====================================================
-    // PRUEBA DEL ÁRBOL AVL (Sprint 4 - Catálogo General O(log n))
-    // ====================================================
-    cout << "\n>>> [FASE 4] Catálogo General de Inventario Optimizado (Árbol AVL) <<<" << endl;
-    CatalogoProductos inventarioGeneral;
-
-    cout << "Poblando el catálogo maestro con operaciones eficientes en O(log n)..." << endl;
-    // Insertamos en un orden que forzaría desbalances en un árbol normal para validar las rotaciones
-    inventarioGeneral.insertarProducto(300, "Servidor Rack Dell", 2500.00);
-    inventarioGeneral.insertarProducto(200, "Switch Cisco 24 Puertos", 450.00);
-    inventarioGeneral.insertarProducto(400, "Access Point Wi-Fi 6", 180.00);
-    inventarioGeneral.insertarProducto(100, "Cable Utp Categoria 6 (305m)", 90.00); // Provoca rotación leve
-    inventarioGeneral.insertarProducto(250, "Gabinete de Pared 9RU", 115.00);
-
-    cout << "\nCatálogo General Autodepurado y Ordenado Automáticamente (In-order):" << endl;
-    inventarioGeneral.mostrarCatalogo();
-
-    // Operación Especial: Edge Case - Intento de Duplicado (Actualización)
-    cout << "\n[Acción Especial] Detectado reajuste de precio para el ID 250 (Gabinete)..." << endl;
-    inventarioGeneral.insertarProducto(250, "Gabinete de Pared 9RU (Premium)", 135.00);
-
-    // Operación: Búsqueda de alta velocidad
-    cout << "\nVerificando datos actualizados mediante búsqueda indexada:" << endl;
-    NodoProducto* prodAVL = inventarioGeneral.buscar(250);
-    if (prodAVL != nullptr) {
-        cout << "[Consulta AVL Exitosa] -> " << prodAVL->nombre << " | Nuevo Precio: $" << prodAVL->precio << endl;
-    }
-
-    // Operación: Baja de Producto con Balanceo Estricto
-    cout << "\nDando de baja del catálogo maestro el ID 300 por obsolescencia..." << endl;
-    if (inventarioGeneral.darDeBaja(300)) {
-        cout << "Producto removido. Estructura balanceada reajustada instantáneamente." << endl;
-    }
-
-    cout << "\nEstado final del Catálogo General de Logiix:" << endl;
-    inventarioGeneral.mostrarCatalogo();
-
-    cout << "==========================================================" << endl;
-    cout << "    Sprint 4 finalizado: Árboles AVL Estructurados (OK)" << endl;
-    cout << "==========================================================" << endl;
-
-    cout << "==========================================================" << endl;
-    cout << "   Sprint 5 finalizado: Árboles Multi-camino 2-3 (OK)" << endl;
-    cout << "==========================================================" << endl;
-
-
-    // ====================================================
-    // PRUEBA DEL GRAFO (Sprint 6 - Rutas de Distribución)
-    // ====================================================
-    cout << "\n>>> [FASE 6] Red de Distribucion Nacional (Grafos) <<<" << endl;
-    RutaDistribucion redLogiix;
-
-    cout << "Trazando enlaces de carreteras y hubs logisticos..." << endl;
-    redLogiix.agregarRuta("Maturin", "Lecheria", 160);
-    redLogiix.agregarRuta("Maturin", "Caracas", 500);
-    redLogiix.agregarRuta("Lecheria", "Caracas", 340);
-    redLogiix.agregarRuta("Caracas", "Valencia", 170);
-    redLogiix.agregarRuta("Valencia", "Barquisimeto", 180);
-
-    cout << "\nVisualizacion de la Red Logistica Registrada:" << endl;
-    redLogiix.mostrarRed();
-
-    cout << "\nSimulando ruteo de envios de larga distancia:" << endl;
-    redLogiix.mostrarRecorridoBFS("Maturin");
-
-    cout << "\n==========================================================" << endl;
-
-
-    // ====================================================
-    // PRUEBA DE LA TABLA HASH (Sprint 6 - Indexacion de Personal O(1))
-    // ====================================================
-    cout << "\n>>> [FASE 7] Directorio de Seguridad del Personal (Tabla Hash) <<<" << endl;
-    TablaUsuarios personalLogiix;
-
-    cout << "Indexando credenciales de usuarios..." << endl;
-    // Agregamos varios usuarios (algunos con IDs que colisionaran a proposito en modulo 11)
-    personalLogiix.insertar("V-12345678", "Adrian Rodriguez", "Administrador Principal");
-    personalLogiix.insertar("V-87654321", "Carlos Mendoza", "Chofer de Distribucion");
-    personalLogiix.insertar("V-11223344", "Maria Perez", "Supervisora de Despacho");
-    personalLogiix.insertar("V-99887766", "Jose Gomez", "Operador de Almacen");
-
-    cout << "\nEstado de distribucion fisica de los datos indexados:" << endl;
-    personalLogiix.mostrarTabla();
-
-    cout << "\nBuscando credenciales en tiempo record (O(1)) para el ID: V-87654321..." << endl;
-    Usuario* usr = personalLogiix.buscar("V-87654321");
-    if (usr != nullptr) {
-        cout << "[Acceso Permitido] -> Nombre: " << usr->nombre << " | Cargo: " << usr->rol << endl;
-    } else {
-        cout << "[Acceso Denegado] -> El usuario no se encuentra en el sistema de seguridad.\n";
-    }
-
-    cout << "==========================================================" << endl;
-    cout << "    Sprint 6 finalizado: Grafos y Tablas Hash (OK)" << endl;
-    cout << "==========================================================" << endl;
+        switch (opcion) {
+            case 1:
+                menuUsuarios(tablaUsuarios);
+                break;
+            case 2:
+                menuPedidos(colaPedidos, tablaUsuarios, inventario, redRutas, mapaHistoriales);
+                break;
+            case 3:
+                menuHistorial(mapaHistoriales);
+                break;
+            case 4:
+                menuInventario(catalogo, inventario);
+                break;
+            case 5:
+                menuRutas(redRutas);
+                break;
+            case 6:
+                cout << "\n==========================================================\n";
+                cout << " GRACIAS POR UTILIZAR EL SISTEMA DE LOGISTICA LOGIIX\n";
+                cout << "==========================================================\n\n";
+                break;
+            default:
+                cout << "\n[!] Opción fuera de rango (1-6).\n";
+                pausar();
+        }
+    } while (opcion != 6);
 
     return 0;
 }
